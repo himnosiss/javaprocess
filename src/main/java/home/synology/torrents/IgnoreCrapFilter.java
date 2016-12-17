@@ -5,6 +5,7 @@ import java.nio.file.DirectoryStream.Filter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -14,13 +15,13 @@ public class IgnoreCrapFilter implements Filter<Path> {
 
 	static Logger LOGGER = LoggerFactory.getLogger(IgnoreCrapFilter.class);
 
-	List<String> crapExtensions = null;
+	List<String> crapExtensions = new ArrayList<String>();
 
 	public IgnoreCrapFilter(String pathToFileWithCrapExtensions) {
 		try {
 			crapExtensions = Files.readAllLines(Paths.get(pathToFileWithCrapExtensions));
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage());
 		}
 	}
 

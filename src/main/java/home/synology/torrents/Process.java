@@ -9,15 +9,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Process {
-	
+
 	private static Logger LOGGER = LoggerFactory.getLogger(Process.class);
-	
 	private static final String pathToFileWithCrapExtensions = "/volume1/misc/ignoreExtensions";
+
+	private static List<Path> unableToProcess = new ArrayList<Path>();
 
 	public static void main(String[] args) {
 		LOGGER.info("Start processing: ", args[0]);
@@ -31,6 +34,7 @@ public class Process {
 	public static void processPath(Path thePath) {
 		// recursive process the directories tree (could use
 		// Files.walkFileTree...)
+		LOGGER.debug("Processing path: " + thePath);
 		if (whatIsThePathType(thePath).equals(PathType.FOLDER)) {
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(thePath, new IgnoreCrapFilter(pathToFileWithCrapExtensions))) {
 				for (Path entry : stream) {
@@ -43,13 +47,21 @@ public class Process {
 			// delete the path once we finished processing it
 			if (thePath.getFileName() != null && !thePath.getFileName().toString().equals("downloaded")) {
 				try {
-					removeRecursive(thePath);
+					if (!unableToProcess.contains(thePath)) {
+						removeRecursive(thePath);
+					} else {
+						LOGGER.warn("The path: " + thePath + " could not be deleted because of a process error");
+					}
 				} catch (IOException e) {
 					LOGGER.error(e.getMessage());
 				}
 			}
 		} else {
-			Move.move(thePath);
+			try {
+				Move.move(thePath);
+			} catch (Exception e) {
+				unableToProcess.add(thePath);
+			}
 		}
 	}
 

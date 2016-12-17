@@ -28,22 +28,20 @@ public class Move {
 	 * 
 	 * @param path
 	 */
-	public static void move(Path path) {
+	public static void move(Path path) throws Exception {
 		Path destination = getDestinationForThisSource(path);
-		// index the curent folder
-		Index.add(destination);
-		try {
+		if (destination != null) {
 			LOGGER.info(path.toString(), " >> ", destination.toString());
-			if (destination != null) {
-				Files.move(path, destination, StandardCopyOption.REPLACE_EXISTING);
+			Files.move(path, destination, StandardCopyOption.REPLACE_EXISTING);
+
+			// index the current folder
+			Index.add(destination);
+
+			// download subtitle
+			// Subtitles.downloadSubtitle(destination);
+			if (isMovie(destination)) {
+				Subtitles.addPath(destination);
 			}
-		} catch (IOException e) {
-			LOGGER.error(e.getMessage());
-		}
-		// download subtitle
-		// Subtitles.downloadSubtitle(destination);
-		if (isMovie(destination)) {
-			Subtitles.addPath(destination);
 		}
 	}
 
@@ -52,7 +50,7 @@ public class Move {
 	}
 
 	private static Path getDestinationForThisSource(Path path) {
-		String filename = path.getFileName().toString().toLowerCase();
+		String filename = path.getFileName().toString().toLowerCase().replace(" ", ".");
 		Path destination = null;
 		if (isSeries(filename)) {
 			destination = buildDestination(filename);
