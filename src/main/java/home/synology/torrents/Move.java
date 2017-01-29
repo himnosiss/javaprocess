@@ -20,8 +20,9 @@ public class Move {
 	// private static final String SERIES = "\\\\DISKSTATION/video/tvshow";
 	// private static final String MOVIES = "\\\\DISKSTATION/video/movie";
 
-	private static final Pattern SERIE = Pattern.compile("s\\d{1,2}");
-	private static final Pattern MOVIE = Pattern.compile("avi|mkv|iso|mp4");
+	private static final Pattern SERIE = Pattern.compile("\\Ws\\d{1,2}");
+	private static final Pattern MOVIE = Pattern.compile("avi|mkv|mp4");
+	private static final Pattern SUBTITLE = Pattern.compile("srt|sub");
 
 	/**
 	 * moves a path representing a file.
@@ -37,11 +38,11 @@ public class Move {
 			// index the current folder
 			Index.add(destination);
 
+			// DOWNLOAD SUBTITLE DISABLED DOESN'T WORK :)
 			// download subtitle
-			// Subtitles.downloadSubtitle(destination);
-			if (isMovie(destination)) {
-				Subtitles.addPath(destination);
-			}
+//			if (isMovie(destination)) {
+//				Subtitles.addPath(destination);
+//			}
 		}
 	}
 
@@ -54,10 +55,10 @@ public class Move {
 		Path destination = null;
 		if (isSeries(filename)) {
 			destination = buildDestination(filename);
-		} else {
-			if (isMovie(filename)) {
-				destination = Paths.get(MOVIES).resolve(filename);
-			}
+		} else if (isMovie(filename)) {
+			destination = Paths.get(MOVIES).resolve(filename);
+		} else if (isSubtitle(filename)) {
+			destination = Paths.get(MOVIES).resolve(filename);
 		}
 		return destination;
 	}
@@ -80,6 +81,15 @@ public class Move {
 
 	public static boolean isMovie(String filename) {
 		Matcher matcher = MOVIE.matcher(filename);
+		if (matcher.find()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isSubtitle(String filename) {
+		Matcher matcher = SUBTITLE.matcher(filename);
 		if (matcher.find()) {
 			return true;
 		} else {

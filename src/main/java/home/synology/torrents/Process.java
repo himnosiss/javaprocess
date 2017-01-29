@@ -38,6 +38,9 @@ public class Process {
 		if (whatIsThePathType(thePath).equals(PathType.FOLDER)) {
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(thePath, new IgnoreCrapFilter(pathToFileWithCrapExtensions))) {
 				for (Path entry : stream) {
+					if("sample".equalsIgnoreCase(entry.getFileName().toString())){
+						continue;
+					}
 					processPath(entry);
 				}
 			} catch (IOException e) {
