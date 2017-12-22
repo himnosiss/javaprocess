@@ -32,7 +32,7 @@ public class Move {
 	public static boolean move(Path path) throws Exception {
 		Path destination = getDestinationForThisSource(path);
 		if (destination != null) {
-			LOGGER.info(path.toString(), " moving to: ", destination.toString());
+			LOGGER.info("\""+path.toString()+"\" moving to: \""+destination.toString()+"\"");
 			Files.move(path, destination, StandardCopyOption.REPLACE_EXISTING);
 
 			// index the current folder

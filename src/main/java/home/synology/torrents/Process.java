@@ -23,17 +23,14 @@ public class Process {
 	private static List<Path> unableToProcess = new ArrayList<Path>();
 
 	public static void main(String[] args) {
-		LOGGER.info("Start processing: ", args[0]);
 		Process.processPath(Paths.get(args[0]));
-		LOGGER.info("Start indexing: ", args[0]);
 		Index.index();
-		LOGGER.info("End indexing: ", args[0]);
 	}
 
 	public static void processPath(Path thePath) {
 		// recursive process the directories tree (could use
 		// Files.walkFileTree...)
-		LOGGER.info("Processing " + (whatIsThePathType(thePath).equals(PathType.FOLDER) ? "folder: " : "file: ") + ": " + thePath);
+		LOGGER.info("Processing " + (whatIsThePathType(thePath).equals(PathType.FOLDER) ? "folder: " : "file: ") + "\"" + thePath + "\"");
 		if (whatIsThePathType(thePath).equals(PathType.FOLDER)) {
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(thePath, new IgnoreCrapFilter(pathToFileWithCrapExtensions))) {
 				for (Path entry : stream) {
@@ -46,14 +43,14 @@ public class Process {
 				LOGGER.error(e.getMessage());
 			}
 
-			LOGGER.info("starting to delete path: " + thePath.toString());
 			// delete the path once we finished processing it
 			if (thePath.getFileName() != null && !thePath.getFileName().toString().equals("downloaded")) {
+				LOGGER.info("starting to delete path: \"" + thePath.toString() + "\"");
 				try {
 					if (isPathProcessed(thePath)) {
 						removeRecursive(thePath);
 					} else {
-						LOGGER.warn("The path: " + thePath + " could not be deleted");
+						LOGGER.warn("The path: \"" + thePath + "\" could not be deleted");
 					}
 				} catch (IOException e) {
 					LOGGER.error(e.getMessage());
@@ -62,11 +59,11 @@ public class Process {
 		} else {
 			try {
 				if (!Move.move(thePath)) {
-					LOGGER.info("No moving path for unknown ressource: " + thePath.toString());
+					LOGGER.info("No destination for unknown ressource: \"" + thePath.toString() + "\"");
 					unableToProcess.add(thePath);
 				}
 			} catch (Exception e) {
-				LOGGER.error(e.getMessage() + "\n" + thePath.toString());
+				LOGGER.error(e.getMessage() + " for: \"" + thePath.toString() + "\"");
 				unableToProcess.add(thePath);
 			}
 		}
@@ -77,7 +74,7 @@ public class Process {
 		for (Path unprocessedPath : unableToProcess) {
 			if (unprocessedPath.startsWith(thePath)) {
 				isPathProcessed = false;
-				LOGGER.warn(thePath.toString() + " contains unable to process ressources: " + unprocessedPath.toString());
+				LOGGER.warn("\"" + thePath.toString() + "\" contains unable to process ressources: \"" + unprocessedPath.toString() + "\"");
 				break;
 			}
 		}

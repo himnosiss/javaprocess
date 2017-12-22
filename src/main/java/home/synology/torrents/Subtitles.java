@@ -98,7 +98,7 @@ public class Subtitles {
 			for (Path path : paths) {
 				// exclude some files
 				if (subtitles.subExists(path)) {
-					LOGGER.info(path.toString() + " has a subtitle, skip");
+					LOGGER.info("\"" + path.toString() + "\" has a subtitle, skip");
 					continue;
 				}
 				String url = subtitles.search(path);
@@ -150,7 +150,8 @@ public class Subtitles {
 	}
 
 	public static void main(String[] args) {
-		Path path = Paths.get("\\\\DISKSTATION\\video\\tvshow\\black.mirror\\02\\Black.Mirror.S02E01.Be.Right.Back.1080p.WEB-DL.AAC2.0.H.264-Coo7.mkv");
+		Path path = Paths
+				.get("\\\\DISKSTATION\\video\\tvshow\\black.mirror\\02\\Black.Mirror.S02E01.Be.Right.Back.1080p.WEB-DL.AAC2.0.H.264-Coo7.mkv");
 		Subtitles.addPath(path);
 		downloadSubtitles();
 	}

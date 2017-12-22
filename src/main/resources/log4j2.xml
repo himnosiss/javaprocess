@@ -1,28 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
-    <Appenders>
-       <!--  <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
-        </Console>
-        <File name="MyFile" fileName="/volume1/misc/javaProcess_all.log" immediateFlush="false" append="true">
-            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-        </File> -->
-        <RollingFile name="RollingFile" fileName="/volume1/misc/javaProcess.log"
-                     filePattern="/volume1/misc/javaProcess.%d{yyyy-MM-dd}-%i.log.gz">
-    <PatternLayout>
-      <pattern>%d{ISO8601} %p %c{2} - %m%n</pattern>
-    </PatternLayout>
-    <Policies>
-      <TimeBasedTriggeringPolicy interval="6" modulate="true" />
-          <SizeBasedTriggeringPolicy size="10 MB" />
-    </Policies>
-      </RollingFile>
-    </Appenders>
-    <Loggers>
-        <Root level="debug">
-           <!--  <AppenderRef ref="Console" /> -->
-<!--             <AppenderRef ref="MyFile"/> -->
-            <AppenderRef ref="RollingFile"/>
-        </Root>
-    </Loggers>
+	<Appenders>
+		<!-- <Console name="Console" target="SYSTEM_OUT"> <PatternLayout pattern="%d{HH:mm:ss.SSS} 
+			[%t] %-5level %logger{36} - %msg%n" /> </Console> <File name="MyFile" fileName="/volume1/misc/javaProcess_all.log" 
+			immediateFlush="false" append="true"> <PatternLayout pattern="%d{yyy-MM-dd 
+			HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/> </File> -->
+		<RollingFile name="RollingFile" fileName="/volume1/misc/javaProcess.log"
+			filePattern="/volume1/misc/javaProcess.%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout>
+				<pattern>%d{ISO8601} %p %c{2} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="6"
+					modulate="true" />
+				<SizeBasedTriggeringPolicy size="10 MB" />
+			</Policies>
+		</RollingFile>
+
+		<!--  MERGE!!!<Syslog name="bsd" host="localhost" port="1514" protocol="UDP" /> -->
+		<Syslog name="RFC5424" format="RFC5424" host="localhost" port="1514"
+			protocol="UDP" appName="MoveFiles" mdcId="mdcId" includeMDC="true" facility="LOCAL4"
+			enterpriseNumber="18060" newLine="true" messageId="Audit" id="App" />
+	</Appenders>
+
+	<Loggers>
+		<Root level="debug">
+			<!-- <AppenderRef ref="Console" /> -->
+			<!-- <AppenderRef ref="MyFile"/> -->
+            <!-- <AppenderRef ref="bsd"/> -->
+			<AppenderRef ref="RollingFile" />
+			<AppenderRef ref="RFC5424" />
+		</Root>
+	</Loggers>
 </Configuration>

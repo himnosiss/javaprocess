@@ -59,7 +59,7 @@ public class Index {
 	 *            the path to the series episode
 	 */
 	public static void add(Path path) {
-		LOGGER.debug("adding "+ path +" to the indexing list");
+		LOGGER.debug("adding \""+ path +"\" to the indexing list");
 		pathsToIndex.add(path.getParent());
 	}
 }
