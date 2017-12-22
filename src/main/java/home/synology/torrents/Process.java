@@ -25,7 +25,6 @@ public class Process {
 	public static void main(String[] args) {
 		LOGGER.info("Start processing: ", args[0]);
 		Process.processPath(Paths.get(args[0]));
-
 		LOGGER.info("Start indexing: ", args[0]);
 		Index.index();
 		LOGGER.info("End indexing: ", args[0]);
@@ -34,11 +33,11 @@ public class Process {
 	public static void processPath(Path thePath) {
 		// recursive process the directories tree (could use
 		// Files.walkFileTree...)
-		LOGGER.debug("Processing path: " + thePath);
+		LOGGER.info("Processing " + (whatIsThePathType(thePath).equals(PathType.FOLDER) ? "folder: " : "file: ") + ": " + thePath);
 		if (whatIsThePathType(thePath).equals(PathType.FOLDER)) {
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(thePath, new IgnoreCrapFilter(pathToFileWithCrapExtensions))) {
 				for (Path entry : stream) {
-					if("sample".equalsIgnoreCase(entry.getFileName().toString())){
+					if ("sample".equalsIgnoreCase(entry.getFileName().toString())) {
 						continue;
 					}
 					processPath(entry);
@@ -47,13 +46,14 @@ public class Process {
 				LOGGER.error(e.getMessage());
 			}
 
+			LOGGER.info("starting to delete path: " + thePath.toString());
 			// delete the path once we finished processing it
 			if (thePath.getFileName() != null && !thePath.getFileName().toString().equals("downloaded")) {
 				try {
-					if (!unableToProcess.contains(thePath)) {
+					if (isPathProcessed(thePath)) {
 						removeRecursive(thePath);
 					} else {
-						LOGGER.warn("The path: " + thePath + " could not be deleted because of a process error");
+						LOGGER.warn("The path: " + thePath + " could not be deleted");
 					}
 				} catch (IOException e) {
 					LOGGER.error(e.getMessage());
@@ -61,11 +61,27 @@ public class Process {
 			}
 		} else {
 			try {
-				Move.move(thePath);
+				if (!Move.move(thePath)) {
+					LOGGER.info("No moving path for unknown ressource: " + thePath.toString());
+					unableToProcess.add(thePath);
+				}
 			} catch (Exception e) {
+				LOGGER.error(e.getMessage() + "\n" + thePath.toString());
 				unableToProcess.add(thePath);
 			}
 		}
+	}
+
+	private static boolean isPathProcessed(Path thePath) {
+		boolean isPathProcessed = true;
+		for (Path unprocessedPath : unableToProcess) {
+			if (unprocessedPath.startsWith(thePath)) {
+				isPathProcessed = false;
+				LOGGER.warn(thePath.toString() + " contains unable to process ressources: " + unprocessedPath.toString());
+				break;
+			}
+		}
+		return isPathProcessed;
 	}
 
 	private static void removeRecursive(Path path) throws IOException {

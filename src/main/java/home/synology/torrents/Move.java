@@ -29,10 +29,10 @@ public class Move {
 	 * 
 	 * @param path
 	 */
-	public static void move(Path path) throws Exception {
+	public static boolean move(Path path) throws Exception {
 		Path destination = getDestinationForThisSource(path);
 		if (destination != null) {
-			LOGGER.info(path.toString(), " >> ", destination.toString());
+			LOGGER.info(path.toString(), " moving to: ", destination.toString());
 			Files.move(path, destination, StandardCopyOption.REPLACE_EXISTING);
 
 			// index the current folder
@@ -40,20 +40,20 @@ public class Move {
 
 			// DOWNLOAD SUBTITLE DISABLED DOESN'T WORK :)
 			// download subtitle
-//			if (isMovie(destination)) {
-//				Subtitles.addPath(destination);
-//			}
+			// if (isMovie(destination)) {
+			// Subtitles.addPath(destination);
+			// }
 		}
-	}
-
-	private static boolean isMovie(Path destination) {
-		return isMovie(destination.toString());
+		return destination != null;
 	}
 
 	private static Path getDestinationForThisSource(Path path) {
 		String filename = path.getFileName().toString().toLowerCase().replace(" ", ".");
+
+		String parentFilename = path.getParent().getFileName().toString().toLowerCase().replace(" ", ".");
+
 		Path destination = null;
-		if (isSeries(filename)) {
+		if (isSeries(filename) || isSeries(parentFilename)) {
 			destination = buildDestination(filename);
 		} else if (isMovie(filename)) {
 			destination = Paths.get(MOVIES).resolve(filename);
@@ -69,7 +69,7 @@ public class Move {
 		destination = destination.resolve(fileNameParts[0]);
 		Matcher serie = SERIE.matcher(filename);
 		serie.find();
-		destination = destination.resolve(serie.group());
+		destination = destination.resolve(serie.group().substring(1));
 		try {
 			Files.createDirectories(destination);
 		} catch (IOException e) {
